@@ -47,7 +47,7 @@ export const PasskeyModal = () => {
   const closeModal = () => {
     setOpen(false);
     router.push("/");
-  };
+  }; 
 
   const validatePasskey = (
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
