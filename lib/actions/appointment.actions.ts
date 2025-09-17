@@ -9,9 +9,8 @@ import {
   APPOINTMENT_COLLECTION_ID,
   DATABASE_ID,
   databases,
-  messaging,
 } from "../appwrite.config";
-import { formatDateTime, parseStringify } from "../utils";
+import {  parseStringify } from "../utils";
 
 /* ---------------------- SEND EMAIL  ---------------------- */
 const sendRequestEmail = async (to: string, name: string,doctor: string, schedule: Date) => {
