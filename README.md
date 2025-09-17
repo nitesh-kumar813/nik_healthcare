@@ -39,7 +39,7 @@ If you prefer visual learning, this is the perfect resource for you. Follow our 
 
 ## <a name="introduction">🤖 Introduction</a>
 
-A healthcare patient management application that allows patients to easily register, book, and manage their appointments with doctors, featuring administrative tools for scheduling, confirming, and canceling appointments, along with SMS notifications, all built using Next.js.
+A healthcare patient management application that allows patients to easily register, book, and manage their appointments with doctors, featuring administrative tools for scheduling, confirming, and canceling appointments, along with SMS/Email notifications, all built using Next.js.
 
 If you're getting started and need assistance or face any bugs, join our active Discord community with over **34k+** members. It's a place where people help each other out.
 
@@ -53,6 +53,7 @@ If you're getting started and need assistance or face any bugs, join our active 
 - TailwindCSS
 - ShadCN
 - Twilio
+- Nodemailer
 
 ## <a name="features">🔋 Features</a>
 
@@ -66,7 +67,7 @@ If you're getting started and need assistance or face any bugs, join our active 
 
 👉 **Cancel Appointment from Admin Side**: Administrators have the ability to cancel any appointment as needed.
 
-👉 **Send SMS on Appointment Confirmation**: Patients receive SMS notifications to confirm their appointment details.
+👉 **Send SMS/Email on Appointment Confirmation**: Patients receive SMS/Email notifications to confirm their appointment details.
 
 👉 **Complete Responsiveness**: The application works seamlessly on all device types and screen sizes.
 

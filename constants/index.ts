@@ -46,37 +46,42 @@ export const Doctors = [
     name: "John Green",
   },
   {
-    image: "/assets/images/dr-cameron.png",
-    name: "Leila Cameron",
+    image: "/assets/images/dr-Sneha.png",
+    name: "Sneha gupta",
   },
   {
-    image: "/assets/images/dr-livingston.png",
-    name: "David Livingston",
+    image: "/assets/images/dr-Arjun.png",
+    name: "Arjun Verma",
   },
   {
-    image: "/assets/images/dr-peter.png",
-    name: "Evan Peter",
+    image: "/assets/images/dr-Rohan.png",
+    name: "Rohan Desai",
   },
   {
-    image: "/assets/images/dr-powell.png",
-    name: "Jane Powell",
+    image: "/assets/images/dr-Ananya.png",
+    name: "Ananya Sharma",
   },
   {
-    image: "/assets/images/dr-remirez.png",
-    name: "Alex Ramirez",
+    image: "/assets/images/dr-Vivek.png",
+    name: "Vivek Nair",
   },
   {
-    image: "/assets/images/dr-lee.png",
-    name: "Jasmine Lee",
+    image: "/assets/images/dr-Priya.png",
+    name: "Priya Mehta",
   },
   {
-    image: "/assets/images/dr-cruz.png",
-    name: "Alyana Cruz",
+    image: "/assets/images/dr-Kavita.png",
+    name: "Kavita Reddy",
   },
   {
     image: "/assets/images/dr-sharma.png",
     name: "Hardik Sharma",
   },
+  {
+    image: "/assets/images/dr-amit.jpg",
+    name: "Amit yadav",
+  },
+
 ];
 
 export const StatusIcon = {

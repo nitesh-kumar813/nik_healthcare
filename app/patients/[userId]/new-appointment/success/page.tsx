@@ -20,23 +20,18 @@ const RequestSuccess = async ({
   return (
     <div className=" flex h-screen max-h-screen px-[5%]">
       <div className="success-img">
-        <Link href="/">
+        <Link href="/" className="cursor-pointer">
           <Image
-            src="/assets/icons/logo-full.svg"
+            src="/assets/icons/logo-full4.svg"
             height={1000}
             width={1000}
             alt="logo"
-            className="h-10 w-fit"
+            className="h-20 w-fit"
           />
         </Link>
 
         <section className="flex flex-col items-center">
-          {/* <Image
-            src="/assets/gifs/success.gif"
-            height={300}
-            width={280}
-            alt="success"
-          /> */}
+          
           <Image
             src="/assets/gifs/success.gif"
             height={300}
@@ -80,7 +75,7 @@ const RequestSuccess = async ({
           </Link>
         </Button>
 
-        <p className="copyright">© 2024 CarePluse</p>
+        <p className="copyright">© 2025 Healthcare</p>
       </div>
     </div>
   );

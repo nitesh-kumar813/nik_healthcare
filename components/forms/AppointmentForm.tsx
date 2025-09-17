@@ -1,4 +1,4 @@
-"use client";
+"use client";``
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
@@ -25,12 +25,14 @@ import { Form } from "../ui/form";
 export const AppointmentForm = ({
   userId,
   patientId,
+  currentUser,
   type = "create",
   appointment,
   setOpen,
 }: {
   userId: string;
-  patientId: string;
+    patientId: string;
+    currentUser: { name: string; email: string; phone: string };
   type: "create" | "schedule" | "cancel";
   appointment?: Appointment;
   setOpen?: Dispatch<SetStateAction<boolean>>;
@@ -38,7 +40,13 @@ export const AppointmentForm = ({
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
-  const AppointmentFormValidation = getAppointmentSchema(type);
+  const AppointmentFormValidation = z.object({
+    primaryPhysician: z.string().min(1, "Select a doctor"),
+    schedule: z.date(),
+    reason: z.string().optional(),
+    note: z.string().optional(),
+    cancellationReason: z.string().optional(),
+  });
 
   const form = useForm<z.infer<typeof AppointmentFormValidation>>({
     resolver: zodResolver(AppointmentFormValidation),
@@ -75,12 +83,16 @@ export const AppointmentForm = ({
         const appointment = {
           userId,
           patient: patientId,
+          name: currentUser.name,
+          email: currentUser.email,
+          phone: currentUser.phone,
           primaryPhysician: values.primaryPhysician,
           schedule: new Date(values.schedule),
           reason: values.reason!,
           status: status as Status,
           note: values.note,
         };
+        console.log("📤 Creating appointment with:", appointment);
 
         const newAppointment = await createAppointment(appointment);
 
@@ -102,8 +114,11 @@ export const AppointmentForm = ({
           },
           type,
         };
+        console.log("📤 Updating appointment with:", appointmentToUpdate);
 
         const updatedAppointment = await updateAppointment(appointmentToUpdate);
+
+        console.log("✅ Appointment updated:", updatedAppointment);
 
         if (updatedAppointment) {
           setOpen && setOpen(false);
@@ -111,7 +126,7 @@ export const AppointmentForm = ({
         }
       }
     } catch (error) {
-      console.log(error);
+      console.error("❌ Error submitting appointment:", error);
     }
     setIsLoading(false);
   };
@@ -139,6 +154,7 @@ export const AppointmentForm = ({
             </p>
           </section>
         )}
+
 
         {type !== "cancel" && (
           <>

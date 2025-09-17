@@ -13,6 +13,72 @@ import {
 } from "../appwrite.config";
 import { formatDateTime, parseStringify } from "../utils";
 
+/* ---------------------- SEND EMAIL  ---------------------- */
+const sendRequestEmail = async (to: string, name: string,doctor: string, schedule: Date) => {
+  try {
+    await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/sendMail`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        to,
+        subject: "Appointment Request Received",
+        text: `Hello ${name}, we have received your appointment request for Dr. ${doctor} on ${schedule.toDateString()}. You will get a confirmation soon.`,
+      }),
+    });
+  } catch (err) {
+    console.error("Error sending email:", err);
+  }
+};
+
+const sendConfirmationEmail = async (
+  to: string,
+  name: string,
+  doctor: string,
+  schedule: Date
+) => {
+  await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/sendMail`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      to,
+      subject: "Appointment Confirmed",
+      text: `Hello ${name}, your appointment has been confirmed for ${schedule.toDateString()} with Dr. ${doctor}.`,
+    }),
+  });
+};
+
+const sendCancellationEmail = async (
+  to: string,
+  name: string,
+  doctor: string,
+  schedule: Date,
+  reason: string
+) => {
+  await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/sendMail`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      to,
+      subject: "Appointment Cancelled",
+      text: `Hello ${name}, your appointment with Dr. ${doctor} on ${schedule.toDateString()} has been cancelled. Reason: ${reason}`,
+    }),
+  });
+};
+
+
+export const sendSMSNotification = async (phone: string, message: string) => {
+  try {
+    console.log("📤 Sending SMS:", phone, message);
+    await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/sendSms`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ to: phone, message }),
+    });
+  } catch (error) {
+    console.error("❌ SMS error:", error);
+  }
+};
+
 //  CREATE APPOINTMENT
 export const createAppointment = async (
   appointment: CreateAppointmentParams
@@ -24,6 +90,21 @@ export const createAppointment = async (
       ID.unique(),
       appointment
     );
+
+    
+    if (appointment.email && appointment.name) {
+      console.log("📩 Sending Email to", appointment.email);
+      await sendRequestEmail(appointment.email, appointment.name,appointment.primaryPhysician,appointment.schedule);
+    }
+
+  
+    if (appointment.phone && appointment.name) {
+      console.log("📲 Sending SMS to", appointment.phone);
+      await sendSMSNotification(
+        appointment.phone,
+        `Hello ${appointment.name}, your appointment request for Dr. ${appointment.primaryPhysician} on ${appointment.schedule.toDateString()} has been received. You will get a confirmation soon.`
+      );
+    }
 
     revalidatePath("/admin");
     return parseStringify(newAppointment);
@@ -41,25 +122,6 @@ export const getRecentAppointmentList = async () => {
       [Query.orderDesc("$createdAt")]
     );
 
-    // const scheduledAppointments = (
-    //   appointments.documents as Appointment[]
-    // ).filter((appointment) => appointment.status === "scheduled");
-
-    // const pendingAppointments = (
-    //   appointments.documents as Appointment[]
-    // ).filter((appointment) => appointment.status === "pending");
-
-    // const cancelledAppointments = (
-    //   appointments.documents as Appointment[]
-    // ).filter((appointment) => appointment.status === "cancelled");
-
-    // const data = {
-    //   totalCount: appointments.total,
-    //   scheduledCount: scheduledAppointments.length,
-    //   pendingCount: pendingAppointments.length,
-    //   cancelledCount: cancelledAppointments.length,
-    //   documents: appointments.documents,
-    // };
 
     const initialCounts = {
       scheduledCount: 0,
@@ -100,21 +162,6 @@ export const getRecentAppointmentList = async () => {
   }
 };
 
-//  SEND SMS NOTIFICATION
-export const sendSMSNotification = async (userId: string, content: string) => {
-  try {
-    // https://appwrite.io/docs/references/1.5.x/server-nodejs/messaging#createSms
-    const message = await messaging.createSms(
-      ID.unique(),
-      content,
-      [],
-      [userId]
-    );
-    return parseStringify(message);
-  } catch (error) {
-    console.error("An error occurred while sending sms:", error);
-  }
-};
 
 //  UPDATE APPOINTMENT
 export const updateAppointment = async ({
@@ -124,18 +171,53 @@ export const updateAppointment = async ({
   type,
 }: UpdateAppointmentParams) => {
   try {
-    // Update appointment to scheduled -> https://appwrite.io/docs/references/cloud/server-nodejs/databases#updateDocument
-    const updatedAppointment = await databases.updateDocument(
+    const updated = await databases.updateDocument(
       DATABASE_ID!,
       APPOINTMENT_COLLECTION_ID!,
       appointmentId,
       appointment
     );
 
-    if (!updatedAppointment) throw Error;
+    if (!updated) throw Error;
 
-    const smsMessage = `Greetings from CarePulse. ${type === "schedule" ? `Your appointment is confirmed for ${formatDateTime(appointment.schedule!).dateTime} with Dr. ${appointment.primaryPhysician}` : `We regret to inform that your appointment for ${formatDateTime(appointment.schedule!).dateTime} is cancelled. Reason:  ${appointment.cancellationReason}`}.`;
-    await sendSMSNotification(userId, smsMessage);
+    const updatedAppointment = updated as Appointment;
+    const patient = updatedAppointment.patient;
+
+    if (type === "schedule") {
+      
+      await sendConfirmationEmail(
+        patient.email,
+        patient.name,
+        updatedAppointment.primaryPhysician,
+        new Date(updatedAppointment.schedule)
+      );
+      await sendSMSNotification(
+        patient.phone,
+        `Hello ${patient.name}, your appointment has been confirmed for ${new Date(
+          updatedAppointment.schedule
+        ).toDateString()} with Dr. ${updatedAppointment.primaryPhysician}.`
+      );
+    }
+
+    if (type === "cancel") {
+      const reason = updatedAppointment.cancellationReason ?? "No reason provided";
+      
+      await sendCancellationEmail(
+        patient.email,
+        patient.name,
+        updatedAppointment.primaryPhysician,
+        new Date(updatedAppointment.schedule),
+        reason
+      );
+      await sendSMSNotification(
+        patient.phone,
+        `Hello ${patient.name}, your appointment with Dr. ${
+          updatedAppointment.primaryPhysician
+        } on ${new Date(
+          updatedAppointment.schedule
+        ).toDateString()} has been cancelled. Reason: ${reason}`
+      );
+    }
 
     revalidatePath("/admin");
     return parseStringify(updatedAppointment);

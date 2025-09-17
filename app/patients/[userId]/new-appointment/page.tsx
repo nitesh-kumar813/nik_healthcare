@@ -6,25 +6,32 @@ import { getPatient } from "@/lib/actions/patient.actions";
 const Appointment = async ({ params: { userId } }: SearchParamProps) => {
   const patient = await getPatient(userId);
 
+  const currentUser = {
+    name: patient?.name as string,
+    email: patient?.email as string,
+    phone: patient?.phone as string,
+  };
+
   return (
     <div className="flex h-screen max-h-screen">
       <section className="remove-scrollbar container my-auto ">
         <div className="sub-container max-w-[860px] flex-1 justify-between ">
           <Image
-            src="/assets/icons/logo-full.svg"
+            src="/assets/icons/logo-full4.svg"
             height={1000}
             width={1000}
             alt="logo"
-            className="mb-12 h-10 w-fit"
+            className="mb-12 h-20 w-fit"
           />
 
           <AppointmentForm
             patientId={patient?.$id}
             userId={userId}
+            currentUser={currentUser}
             type="create"
           />
 
-          <p className="copyright mt-10 py-0">© 2024 CarePluse</p>
+          <p className="copyright mt-10 py-0">© 2025 Healthcare</p>
         </div>
       </section>
 
