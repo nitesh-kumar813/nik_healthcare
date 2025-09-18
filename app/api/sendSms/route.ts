@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+
 import { sendSMS } from '@/lib/sms';
 
 export async function POST(req: Request) {

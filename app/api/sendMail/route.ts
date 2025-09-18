@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+
 import { transporter } from '@/lib/mailer';
 
 export async function POST(req: Request) {
